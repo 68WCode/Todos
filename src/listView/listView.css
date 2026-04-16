@@ -1,0 +1,35 @@
+.hidden {
+    display: none;
+}
+
+#list-view {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+}
+
+#title-section {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-areas: "progress title";
+    gap: 1rem;
+
+}
+
+#title {
+    grid-area: title;
+    width: 80%;
+}
+
+ #todos-section {
+    flex: 1;
+ }
+
+ #list-progress {
+    width: 25px;
+    aspect-ratio: 1 / 1;
+    align-self: center;
+  border: 2px solid #333;
+  border-radius: 50%;
+ }
