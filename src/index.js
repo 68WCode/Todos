@@ -1,105 +1,55 @@
 import "./reset.css";
 import "./style.css";
-import { List } from "./list/list.js";
-import Storage from "./storage.js";
-import { listView } from "./listView/listView.js";
-import { newListView } from "./newList/newList.js";
-import { todayView } from "./today/today.js";
+import { List } from "./model/list/list.js";
+import StorageManager from "./storage.js";
+import ListView from "./views/listView/listView.js";
+import HomeView from "./views/homeView/homeView.js";
 
-const storage = new Storage();
+class App {
+  constructor() {
+    this.storage = new StorageManager();
+    this.root = document.querySelector("body");
 
-const content = document.getElementById("content");
+    this.updateLists();
+    this.setupViews();
+    this.bindEventListeners();
+    this.render();
+  }
 
-const lists = document.getElementById("lists");
+  bindEventListeners() {
+    const handleNewList = () => {
+      let list = new List();
+      this.storage.addList(list);
+      this.updateLists();
+      this.homeView?.renderLists(this.lists);
 
-let newListBttn = document.getElementById("new-list-bttn");
-newListBttn.onclick = () => newList();
+      this.listView?.render(list);
+    };
 
-let createTodoButton = document.getElementById("create-todo-bttn");
-createTodoButton.onclick = () => createTodo();
+    this.homeView?.bindOnNewList(handleNewList);
+  }
 
-let displayedTodoList;
+  updateLists() {
+    let parseLists = () => {
+      this.lists = this.lists.map((list) => List.fromJSON(list));
+    };
 
-refreshLists();
+    this.lists = this.storage.getLists();
+    parseLists();
+  }
 
-displayView(todayView());
-document.getElementById("today-bttn").classList.add("current-view");
+  setupViews() {
+    this.homeView = new HomeView(this.root);
+    this.homeView.renderLists(this.lists);
+    this.listView = new ListView(this.homeView.getContent());
+  }
 
-function getLists() {
-  return storage.getLists();
-}
+  render() {
+    let todayList = new List("Today");
+    this.listView?.render(todayList);
 
-function displayView(view) {
-  content.innerHTML = "";
-  content.appendChild(view);
-}
-
-function newList() {
-  let list = new List();
-
-  storage.addList(list);
-  refreshLists();
-  selectCurrentView(document.getElementById(`${list.id}-list-bttn`));
-  displayView(listView(list, { onSaveTitle }));
-  displayedTodoList = list.id;
-}
-
-function selectCurrentView(current) {
-  let currentlySelected = document.querySelector(".current-view");
-  if (currentlySelected) currentlySelected.classList.toggle("current-view");
-
-  current.classList.toggle("current-view");
-}
-
-function refreshLists() {
-  const storedLists = storage.getLists();
-  lists.innerHTML = "";
-  if (storedLists) {
-    storedLists.forEach((list) => {
-      list = List.fromJSON(list);
-      let listBttn = document.createElement("button");
-      listBttn.textContent = list.getTitle();
-      listBttn.id = `${list.getId()}-list-bttn`;
-      listBttn.onclick = () => {
-        selectCurrentView(listBttn);
-        displayView(
-          listView(list, {
-            onSaveTitle,
-          }),
-        );
-        displayedTodoList = list.id;
-      };
-
-      lists.appendChild(listBttn);
-    });
+    this.homeView?.render(this.listView);
   }
 }
 
-function listTitleUpdated(title, listBttn) {
-  listBttn.textContent = title;
-}
-
-function onSaveTitle(id, newTitle) {
-  storage.updateTitle(id, newTitle);
-  let listBttn = document.getElementById(`${id}-list-bttn`);
-  listTitleUpdated(newTitle, listBttn);
-}
-
-function createTodo() {
-  let newTodoView = document.createElement("div");
-
-  newTodoView.classList.add("editable-todo");
-
-  let completeCheckBox = document.createElement("input");
-  completeCheckBox.type = "checkbox";
-
-  let title = document.createElement("input");
-  title.placeholder = "New Todo";
-  let notes = document.createElement("textarea");
-  notes.placeholder = "Notes";
-
-  newTodoView.append(completeCheckBox, title, notes);
-
-  let todosSection = document.getElementById("todos-section");
-  todosSection.appendChild(newTodoView);
-}
+new App();
