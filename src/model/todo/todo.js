@@ -28,4 +28,9 @@ export default class Todo {
       notes: this.notes,
     });
   }
+
+  static fromJSON(json) {
+    let todo = JSON.parse(json);
+    return new Todo(todo.title, todo.notes, todo.id);
+  }
 }

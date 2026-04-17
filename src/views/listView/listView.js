@@ -56,6 +56,10 @@ export default class ListView {
         this.onSetTitle(this.currentList.id, newTitle);
       }
     });
+    title.addEventListener("blur", (e) => {
+      this.onSetTitle(this.currentList.id, title.textContent);
+      title.contentEditable = "false";
+    });
   }
 
   render() {
@@ -67,14 +71,20 @@ export default class ListView {
     const listProgress = this.viewElements.get("listProgress");
 
     const todosSection = this.viewElements.get("todosSection");
+    this.viewElements.get("todosViews").clear();
+    todosSection.innerHTML = "";
+
     const todos = this.currentList.getTodos();
+    const todosp = document.createElement("p");
+    todosp.textContent = todos;
     const todosViews = this.viewElements.get("todosViews");
+
     for (let todo of todos) {
       let todoView = todosViews.get(todo.id);
       if (!todoView) {
         let todoView = new TodoView(todo);
         todosViews.set(todo.id, todoView);
-        todosSection.appendChild(todoView);
+        todosSection.appendChild(todoView.getContent());
       }
     }
   }

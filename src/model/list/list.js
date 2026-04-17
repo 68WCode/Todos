@@ -1,9 +1,15 @@
+import Todo from "../todo/todo.js";
 export class List {
-  constructor(title = "New List", description = "", id = crypto.randomUUID()) {
+  constructor(
+    title = "New List",
+    description = "",
+    id = crypto.randomUUID(),
+    todos = [],
+  ) {
     this.title = title;
     this.description = description;
     this.id = id;
-    this.todos = [];
+    this.todos = todos;
   }
 
   setTitle(title) {
@@ -45,6 +51,11 @@ export class List {
 
   static fromJSON(json) {
     let list = JSON.parse(json);
-    return new List(list.title, list.description, list.id);
+    return new List(
+      list.title,
+      list.description,
+      list.id,
+      list.todos.map((todo) => Todo.fromJSON(todo)),
+    );
   }
 }
