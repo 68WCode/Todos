@@ -3,6 +3,7 @@ export class List {
     this.title = title;
     this.description = description;
     this.id = id;
+    this.todos = [];
   }
 
   setTitle(title) {
@@ -25,11 +26,20 @@ export class List {
     return this.id;
   }
 
+  getTodos() {
+    return this.todos;
+  }
+
+  addTodo(todo) {
+    this.todos.push(todo);
+  }
+
   toJSON() {
     return JSON.stringify({
       id: this.id,
       title: this.title,
       description: this.description,
+      todos: this.todos,
     });
   }
 

@@ -1,4 +1,4 @@
-class Todo {
+export default class Todo {
   constructor(title = "New Todo", notes = "", id = crypto.randomUUID()) {
     this.title = title;
     this.notes = notes;
@@ -19,5 +19,13 @@ class Todo {
 
   setNotes(notes) {
     this.notes = notes;
+  }
+
+  toJSON() {
+    return JSON.stringify({
+      id: this.id,
+      title: this.title,
+      notes: this.notes,
+    });
   }
 }

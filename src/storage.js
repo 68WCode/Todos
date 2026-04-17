@@ -6,9 +6,7 @@ export default class StorageManager {
 
   addList(list) {
     this.lists.push(list);
-    localStorage.setItem("lists", JSON.stringify(this.lists));
-    let lists = localStorage.getItem("lists");
-    this.lists = JSON.parse(lists);
+    this.updateLists();
   }
 
   getLists() {
@@ -38,5 +36,18 @@ export default class StorageManager {
     for (let list of this.lists) {
       if (JSON.parse(list).id == listId) return list;
     }
+  }
+
+  addTodo(listId, todo) {
+    let updatedLists = [];
+    for (let list of this.lists) {
+      list = JSON.parse(list);
+      if (list.id == listId) {
+        list.todos.push(todo);
+      }
+      updatedLists.push(JSON.stringify(list));
+    }
+    this.lists = updatedLists;
+    this.updateLists();
   }
 }

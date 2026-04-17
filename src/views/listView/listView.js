@@ -1,4 +1,6 @@
 import "./listView.css";
+import TodoView from "../todoView/todoView.js";
+
 export default class ListView {
   constructor(container) {
     this.container = container;
@@ -31,8 +33,9 @@ export default class ListView {
     this.viewElements.set("title", title);
     this.viewElements.set("listProgress", listProgress);
     this.viewElements.set("todosSection", todosSection);
+    this.viewElements.set("todosViews", new Map());
 
-    content.append(titleSection);
+    content.append(titleSection, todosSection);
   }
 
   bindOnSetTitle(callback) {
@@ -49,21 +52,56 @@ export default class ListView {
     title.addEventListener("keydown", (e) => {
       if (e.key == "Enter") {
         let newTitle = title.textContent;
-        this.onSetTitle?.(newTitle);
         title.blur();
+        this.onSetTitle(this.currentList.id, newTitle);
       }
     });
   }
 
-  render(list) {
+  render() {
     const content = this.viewElements.get("root");
+
     const title = this.viewElements.get("title");
+    title.textContent = this.currentList?.title;
+
     const listProgress = this.viewElements.get("listProgress");
 
-    title.textContent = list.title;
+    const todosSection = this.viewElements.get("todosSection");
+    const todos = this.currentList.getTodos();
+    const todosViews = this.viewElements.get("todosViews");
+    for (let todo of todos) {
+      let todoView = todosViews.get(todo.id);
+      if (!todoView) {
+        let todoView = new TodoView(todo);
+        todosViews.set(todo.id, todoView);
+        todosSection.appendChild(todoView);
+      }
+    }
   }
 
   getContent() {
     return this.viewElements.get("root");
+  }
+
+  setCurrentList(list) {
+    this.currentList = list;
+  }
+
+  getCurrentList() {
+    return this.currentList;
+  }
+
+  renderTodos() {
+    let todosContainer = this.viewElements.get("todosSection");
+    let todosViews = this.viewElements.get("todosViews");
+    todosViews.clear();
+    let todos = this.currentList?.getTodos();
+    if (todos) {
+      for (let todo of todos) {
+        if (!todosViews.get(todo.id)) {
+          todosContainer.append(todoView.getContent());
+        }
+      }
+    }
   }
 }

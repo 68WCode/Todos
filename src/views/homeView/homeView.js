@@ -18,11 +18,19 @@ export default class HomeView {
     this.viewElements.set("lists", lists);
     this.viewElements.set("list-bttns", new Map());
     this.viewElements.set("newListBttn", newListBttn);
-    this.viewElements.set("createTodoButton", createTodoButton);
+    this.viewElements.set("createTodoBttn", createTodoButton);
+  }
+
+  bindOnListBttnSelected(callback) {
+    this.onListBttnSelected = callback;
   }
 
   bindOnNewList(callback) {
     this.onNewList = callback;
+  }
+
+  bindOnCreateTodo(callback) {
+    this.onCreateTodo = callback;
   }
 
   addEventListeners() {
@@ -37,7 +45,11 @@ export default class HomeView {
       if (!bttn) return;
       let listId = bttn.dataset.listId;
       this.selectListBttn(listId);
+      this.onListBttnSelected(listId);
     });
+
+    const createButton = this.viewElements.get("createTodoBttn");
+    createButton.addEventListener("click", () => this.onCreateTodo());
   }
 
   selectListBttn(listId) {
@@ -45,6 +57,11 @@ export default class HomeView {
     if (currentlySelected) currentlySelected.classList.toggle("current-view");
     let listBttn = this.viewElements.get("list-bttns").get(listId);
     listBttn?.classList.add("current-view");
+  }
+
+  updateListBttn(listId, textContent) {
+    let listBttn = this.viewElements.get("list-bttns").get(listId);
+    listBttn.textContent = textContent;
   }
 
   renderLists(lists) {
