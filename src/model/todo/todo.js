@@ -1,8 +1,16 @@
 export default class Todo {
-  constructor(title = "New Todo", notes = "", id = crypto.randomUUID()) {
+  constructor(
+    parentList,
+    title = "New Todo",
+    notes = "",
+    complete = false,
+    id = crypto.randomUUID(),
+  ) {
     this.title = title;
     this.notes = notes;
+    this.complete = complete;
     this.id = id;
+    this.parentList = parentList;
   }
 
   getTitle() {
@@ -23,14 +31,11 @@ export default class Todo {
 
   toJSON() {
     return JSON.stringify({
+      parentList: this.parentList,
       id: this.id,
       title: this.title,
       notes: this.notes,
+      complete: this.complete,
     });
-  }
-
-  static fromJSON(json) {
-    let todo = JSON.parse(json);
-    return new Todo(todo.title, todo.notes, todo.id);
   }
 }

@@ -16,28 +16,20 @@ export class List {
     this.title = title;
   }
 
-  getTitle() {
-    return this.title;
-  }
-
   setDescription(desc) {
     this.description = desc;
   }
 
-  getDescription() {
-    return this.description;
-  }
-
-  getId() {
-    return this.id;
-  }
-
-  getTodos() {
-    return this.todos;
-  }
-
   addTodo(todo) {
     this.todos.push(todo);
+  }
+
+  updateTodo(todoId, updatedTodo) {
+    // updates a todo in the list given the todoId and updatedTodo object
+    let index = this.todos.findIndex((todo) => todo.id === todoId);
+    if (index !== -1) {
+      this.todos[index] = updatedTodo;
+    }
   }
 
   toJSON() {
@@ -47,15 +39,5 @@ export class List {
       description: this.description,
       todos: this.todos,
     });
-  }
-
-  static fromJSON(json) {
-    let list = JSON.parse(json);
-    return new List(
-      list.title,
-      list.description,
-      list.id,
-      list.todos.map((todo) => Todo.fromJSON(todo)),
-    );
   }
 }

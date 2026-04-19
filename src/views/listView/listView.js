@@ -34,6 +34,7 @@ export default class ListView {
     this.viewElements.set("listProgress", listProgress);
     this.viewElements.set("todosSection", todosSection);
     this.viewElements.set("todosViews", new Map());
+    this.viewElements.set("todosToRender", new Map());
 
     content.append(titleSection, todosSection);
   }
@@ -42,7 +43,13 @@ export default class ListView {
     this.onSetTitle = callback;
   }
 
+  bindRequestTodoView(callback) {
+    this.requestTodoView = callback;
+  }
+
   addEventListeners() {
+    // event listener for the title that makes it editable when clicked
+    // and calls the onSetTitle callback with the new title when the user presses enter or clicks away from the title
     const title = this.viewElements.get("title");
     title.addEventListener("click", () => {
       title.contentEditable = "true";
@@ -53,7 +60,6 @@ export default class ListView {
       if (e.key == "Enter") {
         let newTitle = title.textContent;
         title.blur();
-        this.onSetTitle(this.currentList.id, newTitle);
       }
     });
     title.addEventListener("blur", (e) => {
@@ -62,7 +68,7 @@ export default class ListView {
     });
   }
 
-  render() {
+  render(listChange = false) {
     const content = this.viewElements.get("root");
 
     const title = this.viewElements.get("title");
@@ -70,23 +76,7 @@ export default class ListView {
 
     const listProgress = this.viewElements.get("listProgress");
 
-    const todosSection = this.viewElements.get("todosSection");
-    this.viewElements.get("todosViews").clear();
-    todosSection.innerHTML = "";
-
-    const todos = this.currentList.getTodos();
-    const todosp = document.createElement("p");
-    todosp.textContent = todos;
-    const todosViews = this.viewElements.get("todosViews");
-
-    for (let todo of todos) {
-      let todoView = todosViews.get(todo.id);
-      if (!todoView) {
-        let todoView = new TodoView(todo);
-        todosViews.set(todo.id, todoView);
-        todosSection.appendChild(todoView.getContent());
-      }
-    }
+    this.renderTodos(listChange);
   }
 
   getContent() {
@@ -101,17 +91,38 @@ export default class ListView {
     return this.currentList;
   }
 
-  renderTodos() {
+  renderTodos(listChange = false) {
+    // renders the todos for the current list in the todos section of the view,
+    // if listChange is true it clears the previously rendered todos and renders all the todos for the current list,
+    // if listChange is false it only renders the new todos that have been added to the current list since the last render
     let todosContainer = this.viewElements.get("todosSection");
     let todosViews = this.viewElements.get("todosViews");
-    todosViews.clear();
-    let todos = this.currentList?.getTodos();
-    if (todos) {
-      for (let todo of todos) {
-        if (!todosViews.get(todo.id)) {
-          todosContainer.append(todoView.getContent());
-        }
-      }
+    let todosToRender = this.viewElements.get("todosToRender");
+
+    let todos = this.currentList?.todos;
+    if (listChange) {
+      todosViews.clear();
+      todosContainer.innerHTML = "";
     }
+
+    if (todos) {
+      todos.forEach((todo) => {
+        if (!todosViews.has(todo.id)) {
+          let todoView = this.requestTodoView(todo);
+          todosViews.set(todo.id, todoView);
+          todosContainer.appendChild(todoView.getContent());
+        } else if (todosToRender.has(todo.id)) {
+          let todoView = todosViews.get(todo.id);
+          todosContainer.appendChild(todoView.getContent());
+          todosToRender.delete(todo.id);
+        }
+      });
+    }
+  }
+
+  addTodoView(todoId, todoView) {
+    // adds a todo view to the todosToRender map with the todoId as key and the todoView as value,
+    // so that it can be rendered in the next render call
+    this.viewElements.get("todosToRender").set(todoId, todoView);
   }
 }

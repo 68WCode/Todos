@@ -72,21 +72,6 @@ body {
     justify-content: space-evenly;
 }
 
-.editable-todo {
-    display: grid;
-    grid-template-areas: "check title"
-                            ". notes";
-    grid-template-columns: auto 1fr;
-}
-
-.editable-todo input[type="checkbox"] {
-    grid-area: check;
-}
-
-.editable-todo input[type="text"] {
-    grid-area: title;
-}
-
-.editable-todo textarea {
-    grid-area: notes;
+.hidden {
+    display: none;
 }
