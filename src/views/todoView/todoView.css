@@ -11,8 +11,19 @@
 
 .todo .todo-text {
     grid-area: text;
+    display: flex;
+    flex-direction: column;
+
 }
 
 .todo .todo-text textarea {
     width: 100%;
+}
+
+.date-tag {
+    background-color: #eee;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
 }

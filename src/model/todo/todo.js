@@ -4,11 +4,13 @@ export default class Todo {
     title = "New Todo",
     notes = "",
     complete = false,
+    completionDate = null,
     id = crypto.randomUUID(),
   ) {
     this.title = title;
     this.notes = notes;
     this.complete = complete;
+    this.completionDate = completionDate;
     this.id = id;
     this.parentList = parentList;
   }
@@ -36,6 +38,7 @@ export default class Todo {
       title: this.title,
       notes: this.notes,
       complete: this.complete,
+      completionDate: this.completionDate,
     });
   }
 }

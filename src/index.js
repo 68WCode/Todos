@@ -108,9 +108,12 @@ class App {
   }
 
   createTodoView(todo, editable = false) {
-    const onTodoUpdate = (todo, newTitle, notes) => {
+    const onTodoUpdate = (todo, newTitle, notes, completionDate) => {
       todo.title = newTitle;
       todo.notes = notes;
+      if (completionDate) {
+        todo.duedate = completionDate;
+      }
       todo.parentList = todo.parentList || this.listView.getCurrentList().id;
       let list = this.lists.get(todo.parentList);
       list.updateTodo(todo.id, todo);
@@ -119,6 +122,7 @@ class App {
       this.updateLists();
       this.listView.setCurrentList(list);
       this.listView.render();
+      todoView.render();
     };
 
     const onToggleComplete = (todo) => {
