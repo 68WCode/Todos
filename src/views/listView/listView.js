@@ -20,11 +20,15 @@ export default class ListView {
     const title = document.createElement("h1");
     title.id = "title";
 
+    const notes = document.createElement("textarea");
+    notes.id = "notes";
+    notes.placeholder = "Notes";
+
     const listProgress = document.createElement("input");
     listProgress.id = "list-progress";
     listProgress.type = "checkbox";
 
-    titleSection.append(listProgress, title);
+    titleSection.append(listProgress, title, notes);
 
     const todosSection = document.createElement("div");
     todosSection.id = "todos-section";
@@ -32,6 +36,7 @@ export default class ListView {
     this.viewElements.set("root", content);
     this.viewElements.set("title", title);
     this.viewElements.set("listProgress", listProgress);
+    this.viewElements.set("notes", notes);
     this.viewElements.set("todosSection", todosSection);
     this.viewElements.set("todosViews", new Map());
     this.viewElements.set("todosToRender", new Map());

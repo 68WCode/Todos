@@ -66,7 +66,11 @@ class App {
     const onSetTitle = (listId, newTitle) => {
       this.storage.updateListTitle(listId, newTitle);
       this.homeView.updateListBttn(listId, newTitle);
+      this.updateLists();
+      let currentList = this.lists.get(this.listView.currentList.id);
+      this.listView.setCurrentList(currentList);
     };
+
     this.listView.bindOnSetTitle(onSetTitle);
 
     // callback for when a list button is selected in the home view that sets the current list in the list view and renders it
@@ -108,16 +112,8 @@ class App {
   }
 
   createTodoView(todo, editable = false) {
-    const onTodoUpdate = (todo, newTitle, notes, completionDate) => {
-      todo.title = newTitle;
-      todo.notes = notes;
-      if (completionDate) {
-        todo.duedate = completionDate;
-      }
-      todo.parentList = todo.parentList || this.listView.getCurrentList().id;
-      let list = this.lists.get(todo.parentList);
-      list.updateTodo(todo.id, todo);
-
+    const onTodoUpdate = (updates) => {
+      todo = { ...todo, ...updates };
       this.storage.updateTodo(todo.parentList, todo.id, todo);
       this.updateLists();
       this.listView.setCurrentList(list);
@@ -125,19 +121,9 @@ class App {
       todoView.render();
     };
 
-    const onToggleComplete = (todo) => {
-      let list = this.lists.get(todo.parentList);
-      list.updateTodo(todo.id, todo);
-
-      this.storage.updateTodo(todo.parentList, todo.id, todo);
-      this.updateLists();
-      this.listView.setCurrentList(list);
-      this.listView.render();
-    };
-
+    let list = this.listView.getCurrentList();
     let todoView = new TodoView(todo, editable);
     todoView.bindOnUpdateTodo(onTodoUpdate);
-    todoView.bindOnCompleteToggle(onToggleComplete);
 
     return todoView;
   }

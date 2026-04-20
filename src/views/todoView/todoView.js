@@ -1,9 +1,11 @@
+import calendarIcon from "../../icons/calendar_month_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg";
 import "./todoView.css";
 
 export default class TodoView {
   constructor(todo, editMode = false) {
     this.todo = todo;
     this.editMode = editMode;
+    this.elements = {};
     this.viewElements = new Map();
     this.setupElements();
     this.addEventListeners();
@@ -17,208 +19,190 @@ export default class TodoView {
       // notes,
       // and a container for the text elements, and stores them in a map for easy access
       const textContainer = document.createElement("div");
+      this.elements.textContainer = textContainer;
+
       textContainer.classList.add("todo-text");
-      this.viewElements.set("text-container", textContainer);
 
       const notes = document.createElement("textarea");
-      this.viewElements.set("notes", notes);
+      this.elements.notes = notes;
 
       const title = document.createElement("h1");
-      this.viewElements.set("title", title);
-
-      if (!this.editMode) {
-        notes.classList.add("hidden");
-      }
+      this.elements.title = title;
     }
 
     function optionElements() {
       // creates the elements for the todo options,
       // including a button for setting the due date
       // and a container for the options, and stores them in a map for easy access
-      const optionContainer = document.createElement("div");
-      optionContainer.classList.add("option-container");
+      const optionsContainer = document.createElement("div");
+      this.elements.optionsContainer = optionsContainer;
+      optionsContainer.id = "todo-option-container";
+
+      const tags = document.createElement("div");
+      this.elements.tags = tags;
+      tags.id = "todo-tags";
+
+      const optionButtons = document.createElement("div");
+      this.elements.optionButtons = optionButtons;
+      optionButtons.id = "option-bttns";
+
+      const todoTags = document.createElement("div");
+      this.elements.todoTags = todoTags;
+      todoTags.id = "todo-tags";
 
       const dateTag = document.createElement("p");
+      this.elements.dateTag = dateTag;
       dateTag.classList.add("date-tag");
-      this.viewElements.set("dateTag", dateTag);
 
-      const calendarBttn = document.createElement("button");
-      calendarBttn.textContent = "Set Due Date";
+      const calendarButton = document.createElement("button");
+      this.elements.calendarButton = calendarButton;
+      calendarButton.id = "completion-date-bttn";
 
       const dateInput = document.createElement("input");
+      this.elements.dateInput = dateInput;
       dateInput.type = "date";
-      this.viewElements.set("dateInput", dateInput);
-
-      optionContainer.append(dateTag, calendarBttn);
-
-      this.viewElements.set("option-container", optionContainer);
-      this.viewElements.set("calendarBttn", calendarBttn);
+      dateInput.classList.add("hidden");
     }
 
     const container = document.createElement("div");
+    this.elements.container = container;
     container.classList.add("todo");
-    this.viewElements.set("container", container);
 
     textElements.call(this);
     optionElements.call(this);
 
     const check = document.createElement("input");
     check.type = "checkbox";
-    this.viewElements.set("check", check);
+    this.elements.check = check;
 
     container.dataset.id = this.todo.id;
   }
 
   addEventListeners() {
     //  adds event listeners for the todo view elements, including the checkbox for marking the todo as complete and the title for editing the todo
-    let completeCheck = this.viewElements.get("check");
-
-    let textContainer = this.viewElements.get("text-container");
-    let title = this.viewElements.get("title");
-    let notes = this.viewElements.get("notes");
-
-    let options = this.viewElements.get("option-container");
-    let calendarBttn = this.viewElements.get("calendarBttn");
-    let dateInput = this.viewElements.get("dateInput");
-    let dateTag = this.viewElements.get("dateTag");
 
     // event listener for the complete checkbox that calls the onToggleComplete callback with the updated todo when the checkbox is toggled
-    completeCheck.addEventListener("change", () => {
-      this.todo.complete = completeCheck.checked;
-      this.onToggleComplete(this.todo);
+    this.elements.check.addEventListener("change", () => {
+      this.onUpdateTodo({ complete: this.elements.check.checked });
     });
 
     // event listener for the title that makes it editable when double clicked and calls the onUpdateTodo callback with the updated todo when the user presses enter or clicks away from the title
-    title.addEventListener("dblclick", () => {
+    this.elements.title.addEventListener("dblclick", () => {
       if (!this.editMode) {
         this.toggleEditMode();
       }
     });
 
     // event listener for the title that calls the onUpdateTodo callback with the updated todo when the user presses enter or clicks away from the title
-    title.addEventListener("keydown", (e) => {
+    this.elements.title.addEventListener("keydown", (e) => {
       if (e.key == "Enter") {
-        this.onUpdateTodo(
-          this.todo,
-          title.textContent,
-          notes.value,
-          dateInput.value || null,
-        );
+        this.onUpdateTodo({
+          title: this.elements.title.textContent,
+        });
         this.toggleEditMode();
       }
     });
 
     // event listener for clicks outside the title and options that calls the onUpdateTodo callback with the updated todo and toggles edit mode off when the user clicks away from the title or options
     document.addEventListener("click", (e) => {
-      if (
-        this.editMode &&
-        (!textContainer.contains(e.target) || !options.contains(e.target))
-      ) {
-        this.onUpdateTodo(
-          this.todo,
-          title.textContent,
-          notes.value,
-          dateInput.value,
-        );
+      if (this.editMode && !this.elements.container.contains(e.target)) {
+        this.onUpdateTodo({
+          title: title.textContent,
+          notes: this.elements.notes.value,
+          completionDate: this.elements.dateInput.value,
+        });
         this.toggleEditMode();
       }
     });
 
     // event listener for the calendar button that appends the date input to the options container when clicked
-    calendarBttn.addEventListener("click", () => {
-      let dateInput = this.viewElements.get("dateInput");
-      options.appendChild(dateInput);
-      dateInput.classList.remove("hidden");
+    this.elements.calendarButton.addEventListener("click", () => {
+      this.elements.optionsbuttons.appendChild(this.elements.dateInput);
+      this.elements.dateInput.classList.remove("hidden");
     });
 
-    dateTag.addEventListener("click", () => {
-      dateInput.value = this.todo.duedate;
-      options.appendChild(dateInput);
-      dateInput.classList.remove("hidden");
-      dateTag.classList.add("hidden");
+    this.elements.dateTag.addEventListener("click", () => {
+      this.elements.dateInput.value = this.todo.completionDate;
+      this.elements.optionsContainer.appendChild(dateInput);
+      this.elements.dateInput.classList.remove("hidden");
+      this.elements.dateTag.classList.add("hidden");
+    });
+
+    this.elements.dateInput.addEventListener("change", (e) => {
+      let value = this.elements.dateInput.value;
+
+      this.onUpdateTodo({ completionDate: value });
+      this.elements.dateInput.classList.add("hidden");
+      this.elements.calendarButton.classList.add("hidden");
+      this.elemenets.dateTag.classList.remove("hidden");
+      this.render();
     });
   }
 
   render() {
-    let container = this.viewElements.get("container");
+    this.elements.container.innerHTML = "";
+    this.elements.container.append(
+      this.elements.check,
+      this.elements.textContainer,
+    );
 
-    let textContainer = this.viewElements.get("text-container");
-    let title = this.viewElements.get("title");
-    title.textContent = this.todo.title;
+    this.elements.textContainer.append(
+      this.elements.title,
+      this.elements.notes,
+      this.elements.optionContainer,
+    );
 
-    let notes = this.viewElements.get("notes");
-    notes.placeholder = "Notes";
-    notes.value = this.todo.notes;
+    this.elements.title.textContent = this.todo.title;
 
-    let optionContainer = this.viewElements.get("option-container");
-    let dateInput = this.viewElements.get("dateInput");
-    let dateTag = this.viewElements.get("dateTag");
+    this.elements.notes.placeholder = "Notes";
+    this.elements.notes.value = this.todo.notes;
 
-    textContainer.append(title, notes, optionContainer);
-
-    let check = this.viewElements.get("check");
-    check.checked = this.todo.complete;
+    this.elements.check.checked = this.todo.complete;
 
     if (this.editMode) {
       this.makeEditable();
     } else {
-      notes.classList.add("hidden");
-      this.viewElements.get("option-container").classList.add("hidden");
+      this.elements.notes.classList.add("hidden");
+      this.elements.optionsContainer.classList.add("hidden");
     }
 
-    if (this.todo.duedate) {
-      dateTag.textContent = `Due: ${this.todo.duedate}`;
-      dateTag.classList.remove("hidden");
-      let dateBttn = this.viewElements.get("calendarBttn");
-      dateBttn.classList.add("hidden");
-      dateInput.classList.add("hidden");
+    if (this.todo.completionDate) {
+      this.elements.dateTag.textContent = `Due: ${this.todo.completionDate}`;
+      this.elements.dateTag.classList.remove("hidden");
+      this.elements.calendarButton.classList.add("hidden");
+      this.elements.dateInput.classList.add("hidden");
     } else {
-      this.viewElements
-        .get("option-container")
-        .querySelector(".date-tag")
-        .classList.add("hidden");
+      this.elements.dateTag.classList.add("hidden");
     }
-
-    container.append(check, textContainer);
   }
 
   getContent() {
-    return this.viewElements.get("container");
+    return this.elements.container;
   }
 
   makeEditable() {
-    let title = this.viewElements.get("title");
-    let notes = this.viewElements.get("notes");
-    let options = this.viewElements.get("option-container");
-
-    title.contentEditable = "true";
-    title.focus();
-    notes.classList.remove("hidden");
-    options.classList.remove("hidden");
+    this.elements.container.classList.add("editable");
+    this.elements.title.contentEditable = "true";
+    this.elements.title.focus();
+    this.elements.notes.classList.remove("hidden");
+    this.elements.optionsContainer.classList.remove("hidden");
   }
 
   toggleEditMode() {
-    let title = this.viewElements.get("title");
-    let notes = this.viewElements.get("notes");
-    let textContainer = this.viewElements.get("text-container");
-
     this.editMode = this.editMode ? false : true;
     if (this.editMode) {
       this.makeEditable();
     } else {
-      title.contentEditable = false;
-      notes.classList.add("hidden");
-      this.viewElements.get("option-container").classList.add("hidden");
+      this.elements.container.classList.remove("editable");
+      this.elements.title.contentEditable = false;
+      this.elements.notes.classList.add("hidden");
+      this.elements.optionsContainer.classList.add("hidden");
     }
 
-    textContainer.focus();
+    this.elements.textContainer.focus();
   }
 
   bindOnUpdateTodo(callback) {
     this.onUpdateTodo = callback;
-  }
-
-  bindOnCompleteToggle(callback) {
-    this.onToggleComplete = callback;
   }
 }

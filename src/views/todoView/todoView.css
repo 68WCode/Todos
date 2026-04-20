@@ -3,6 +3,13 @@
     grid-template-areas: "check text";
     grid-template-columns: auto 1fr;
     column-gap: 1rem;
+   
+}
+
+.editable {
+    border: #eee solid 1px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .todo input[type="checkbox"] {
@@ -20,10 +27,41 @@
     width: 100%;
 }
 
+.todo h1 {
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-weight: normal;
+}
+
 .date-tag {
     background-color: #eee;
     padding: 0.25rem 0.5rem;
     border-radius: 4px;
     font-size: 0.8rem;
     margin-top: 0.5rem;
+}
+
+.todo #todo-option-container {
+    display: grid; 
+    grid-template-areas: "tags options";
+    grid-template-columns: 1fr auto;
+}
+
+#todo-option-container #todo-tags {
+    grid-area: tags
+}
+
+#todo-option-container #option-bttns {
+    grid-area: options;
+    display: flex;
+}
+
+#option-bttns button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+#completion-date-bttn svg {
+    fill: #ddd;
 }
