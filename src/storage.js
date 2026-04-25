@@ -11,10 +11,11 @@ export default class StorageManager {
     localStorage.setItem("lists", lists);
   }
 
-  getLists() {
-    // returns all lists in localStorage parsed
-    let lists = JSON.parse(localStorage.getItem("lists")) || [];
-    return lists.map(([listId, list]) => [listId, list]);
+  deleteList(listId) {
+    let lists = this.getLists();
+    lists = lists.filter((listPair) => listPair[0] != listId);
+    lists = JSON.stringify(lists);
+    localStorage.setItem("lists", lists);
   }
 
   getLists() {
@@ -62,12 +63,16 @@ export default class StorageManager {
     return this.formatListsToMap();
   }
 
-  updateListTitle(listId, newTitle) {
-    // updates the title of a list in localStorage given the listId and newTitle
+  updateList(listId, updates) {
     let lists = this.getListMap();
     let list = lists.get(listId);
     if (list) {
-      list["title"] = newTitle;
+      if (updates.title) {
+        list["title"] = updates.title;
+      }
+      if ("notes" in updates) {
+        list["notes"] = updates.notes;
+      }
       lists.set(listId, list);
       localStorage.setItem("lists", JSON.stringify([...lists]));
     }

@@ -10,7 +10,7 @@
     gap: 1rem;
 }
 
-#title-section {
+#list-section {
     display: grid;
     grid-template-columns: auto 1fr;
     grid-template-areas: "progress title"
@@ -25,9 +25,32 @@
     resize: none;
 }
 
-#title {
+#title-section{
     grid-area: title;
     width: 80%;
+    display: flex;
+    gap: 0.5rem;
+    position: relative;
+    align-items: center;
+}
+
+#title-section button {
+    border: none;
+    background-color: transparent;
+    height: fit-content;
+    align-self: center;
+}
+
+#options-menu {
+    position: relative;
+}
+
+#options-toggle svg {
+    fill: #ccc;
+}
+
+#options-toggle {
+    border-radius: 8px;
 }
 
  #todos-section {
@@ -45,6 +68,34 @@
     width: 25px;
     aspect-ratio: 1 / 1;
     align-self: center;
-    border: 2px solid #333;
+    border: 3px solid rgb(49, 95, 189);
     border-radius: 50%;
+ }
+
+ #options-panel {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    background-color: rgb(65, 67, 71);
+    border-radius: 8px;
+    padding: 0.5rem;
+ }
+
+ #options-panel button {
+    color: white;
+    width: 100%;
+    border-radius: 8px;
+ }
+
+ #options-panel button:hover{
+    background-color: rgb(106, 152, 248);
+ }
+
+ #options-toggle.active {
+    background-color: #ddd;
+ }
+
+ #options-toggle.active svg {
+    fill: #aaa;
  }

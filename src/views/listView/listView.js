@@ -1,11 +1,10 @@
 import "./listView.css";
+import menuIcon from "../../icons/more_horiz_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg";
 import TodoView from "../todoView/todoView.js";
 
 export default class ListView {
-  constructor(container) {
-    this.container = container;
-    this.viewElements = new Map();
-
+  constructor() {
+    this.elements = {};
     this.setupViewElements();
     this.addEventListeners();
   }
@@ -13,49 +12,95 @@ export default class ListView {
   setupViewElements() {
     const content = document.createElement("div");
     content.id = "list-view";
+    this.elements.content = content;
+
+    const listSection = document.createElement("div");
+    listSection.id = "list-section";
+    this.elements.titleSection = listSection;
 
     const titleSection = document.createElement("div");
     titleSection.id = "title-section";
 
     const title = document.createElement("h1");
     title.id = "title";
+    this.elements.title = title;
+
+    const listOptionsMenu = document.createElement("div");
+    this.elements.optionsMenu = listOptionsMenu;
+    listOptionsMenu.id = "options-menu";
+
+    const listOptionsToggle = document.createElement("button");
+    listOptionsToggle.innerHTML = menuIcon;
+    this.elements.listOptionsToggle = listOptionsToggle;
+    listOptionsToggle.id = "options-toggle";
+
+    const listOptionsPanel = document.createElement("div");
+    this.elements.optionsPanel = listOptionsPanel;
+    this.elements.listOptionsPanel = listOptionsPanel;
+    listOptionsPanel.id = "options-panel";
+
+    const completeList = document.createElement("button");
+    completeList.textContent = "Complete";
+    this.elements.completeList = completeList;
+
+    const setDate = document.createElement("button");
+    setDate.textContent = "When";
+
+    const duplicate = document.createElement("button");
+    duplicate.textContent = "Duplicate";
+
+    const deleteList = document.createElement("button");
+    this.elements.deleteList = deleteList;
+    deleteList.textContent = "Delete";
+
+    listOptionsPanel.append(completeList, setDate, duplicate, deleteList);
+    listOptionsPanel.classList.add("hidden");
+
+    listOptionsMenu.append(listOptionsToggle, listOptionsPanel);
 
     const notes = document.createElement("textarea");
     notes.id = "notes";
     notes.placeholder = "Notes";
+    this.elements.notes = notes;
 
     const listProgress = document.createElement("input");
     listProgress.id = "list-progress";
     listProgress.type = "checkbox";
+    this.elements.listProgress = listProgress;
 
-    titleSection.append(listProgress, title, notes);
+    listSection.append(listProgress, titleSection, notes);
+    titleSection.append(title, listOptionsMenu);
 
     const todosSection = document.createElement("div");
     todosSection.id = "todos-section";
+    this.elements.todosSection = todosSection;
 
-    this.viewElements.set("root", content);
-    this.viewElements.set("title", title);
-    this.viewElements.set("listProgress", listProgress);
-    this.viewElements.set("notes", notes);
-    this.viewElements.set("todosSection", todosSection);
-    this.viewElements.set("todosViews", new Map());
-    this.viewElements.set("todosToRender", new Map());
+    this.elements.todosViews = new Map();
+    this.elements.todosToRender = new Map();
 
-    content.append(titleSection, todosSection);
+    content.append(listSection, todosSection);
   }
 
   bindOnSetTitle(callback) {
     this.onSetTitle = callback;
   }
 
+  bindOnNotesUpdate(callback) {
+    this.onNotesUpdate = callback;
+  }
+
   bindRequestTodoView(callback) {
     this.requestTodoView = callback;
+  }
+
+  bindOnDeleteList(callback) {
+    this.deleteList = callback;
   }
 
   addEventListeners() {
     // event listener for the title that makes it editable when clicked
     // and calls the onSetTitle callback with the new title when the user presses enter or clicks away from the title
-    const title = this.viewElements.get("title");
+    const title = this.elements.title;
     title.addEventListener("click", () => {
       title.contentEditable = "true";
       title.focus();
@@ -67,25 +112,52 @@ export default class ListView {
         title.blur();
       }
     });
+
     title.addEventListener("blur", (e) => {
       this.onSetTitle(this.currentList.id, title.textContent);
       title.contentEditable = "false";
     });
+
+    this.elements.notes.addEventListener("change", (e) => {
+      this.onNotesUpdate(this.currentList.id, this.elements.notes.value);
+    });
+
+    // document.addEventListener("click", (e) => {
+    //   const menuPanel = this.elements.listOptionsPanel;
+    //   if (
+    //     e.target != this.elements.listOptionsToggle &&
+    //     this.elements.listOptionsToggle.classList.contains("active") &&
+    //     !menuPanel.contains(e.target)
+    //   ) {
+    //     this.elements.listOptionsToggle.classList.toggle("active");
+    //     menuPanel.classList.toggle("hidden");
+    //   }
+    // });
+
+    this.elements.listOptionsToggle.addEventListener("click", (e) => {
+      this.elements.listOptionsPanel.classList.toggle("hidden");
+      this.elements.listOptionsToggle.classList.toggle("active");
+    });
+
+    this.elements.deleteList.addEventListener("click", () => {
+      this.deleteList(this.currentList.id);
+    });
   }
 
   render(listChange = false) {
-    const content = this.viewElements.get("root");
-
-    const title = this.viewElements.get("title");
+    const title = this.elements.title;
     title.textContent = this.currentList?.title;
 
-    const listProgress = this.viewElements.get("listProgress");
+    const notes = this.elements.notes;
+    notes.value = this.currentList?.notes;
+
+    const listProgress = this.elements.listProgress;
 
     this.renderTodos(listChange);
   }
 
   getContent() {
-    return this.viewElements.get("root");
+    return this.elements.content;
   }
 
   setCurrentList(list) {
@@ -100,9 +172,10 @@ export default class ListView {
     // renders the todos for the current list in the todos section of the view,
     // if listChange is true it clears the previously rendered todos and renders all the todos for the current list,
     // if listChange is false it only renders the new todos that have been added to the current list since the last render
-    let todosContainer = this.viewElements.get("todosSection");
-    let todosViews = this.viewElements.get("todosViews");
-    let todosToRender = this.viewElements.get("todosToRender");
+    console.log(this.currentList);
+    let todosContainer = this.elements.todosSection;
+    let todosViews = this.elements.todosViews;
+    let todosToRender = this.elements.todosToRender;
 
     let todos = this.currentList?.todos;
     if (listChange) {
@@ -128,6 +201,6 @@ export default class ListView {
   addTodoView(todoId, todoView) {
     // adds a todo view to the todosToRender map with the todoId as key and the todoView as value,
     // so that it can be rendered in the next render call
-    this.viewElements.get("todosToRender").set(todoId, todoView);
+    this.elements.todosToRender.set(todoId, todoView);
   }
 }

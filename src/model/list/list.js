@@ -2,22 +2,14 @@ import Todo from "../todo/todo.js";
 export class List {
   constructor(
     title = "New List",
-    description = "",
+    notes = "",
     id = crypto.randomUUID(),
     todos = [],
   ) {
     this.title = title;
-    this.description = description;
     this.id = id;
+    this.notes = notes;
     this.todos = todos;
-  }
-
-  setTitle(title) {
-    this.title = title;
-  }
-
-  setDescription(desc) {
-    this.description = desc;
   }
 
   addTodo(todo) {
@@ -33,11 +25,11 @@ export class List {
   }
 
   toJSON() {
-    return JSON.stringify({
+    return {
       id: this.id,
       title: this.title,
-      description: this.description,
+      notes: this.notes,
       todos: this.todos,
-    });
+    };
   }
 }

@@ -14,6 +14,7 @@ export default class HomeView {
     const lists = document.getElementById("lists");
     const newListBttn = document.getElementById("new-list-bttn");
     const createTodoButton = document.getElementById("create-todo-bttn");
+    const todayButton = document.getElementById("today-bttn");
 
     this.viewElements.set("content", content);
     this.viewElements.set("sidebar", sidebar);
@@ -21,6 +22,7 @@ export default class HomeView {
     this.viewElements.set("list-bttns", new Map());
     this.viewElements.set("newListBttn", newListBttn);
     this.viewElements.set("createTodoBttn", createTodoButton);
+    this.viewElements.set("todayBttn", todayButton);
 
     for (let list of this.currentLists) {
       this.newListBttn(list);
@@ -37,6 +39,11 @@ export default class HomeView {
 
   bindOnCreateTodo(callback) {
     this.onCreateTodo = callback;
+  }
+
+  bindDisplayTodayView(callback) {
+    this.displayTodayView = callback;
+    this.viewElements.get("todayBttn").classList.add();
   }
 
   addEventListeners() {
@@ -59,6 +66,17 @@ export default class HomeView {
     const createButton = this.viewElements.get("createTodoBttn");
     // event listener for the create todo button that calls the onCreateTodo callback when clicked
     createButton.addEventListener("click", () => this.onCreateTodo());
+
+    this.viewElements.get("todayBttn").addEventListener("click", () => {
+      this.displayTodayView();
+      this.displayCurrentViewBttn(this.viewElements.get("todayBttn"));
+    });
+  }
+
+  displayCurrentViewBttn(bttn) {
+    let currentlySelected = document.querySelector(".current-view");
+    if (currentlySelected) currentlySelected.classList.toggle("current-view");
+    bttn.classList.add("current-view");
   }
 
   selectListBttn(listId) {
@@ -88,6 +106,7 @@ export default class HomeView {
 
   render(view) {
     // renders the given view in the content area of the home view
+    this.viewElements.get("content").innerHTML = "";
     this.viewElements.get("content").appendChild(view.getContent());
   }
 

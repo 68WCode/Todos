@@ -1,6 +1,8 @@
 .todo {
     display: grid;
-    grid-template-areas: "check text";
+    grid-template-areas: "check title"
+                            ". notes"
+                            ". options";
     grid-template-columns: auto 1fr;
     column-gap: 1rem;
    
@@ -10,18 +12,14 @@
     border: #eee solid 1px;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: relative;
+    padding: 1rem;
 }
 
 .todo input[type="checkbox"] {
     grid-area: check;
 }
 
-.todo .todo-text {
-    grid-area: text;
-    display: flex;
-    flex-direction: column;
-
-}
 
 .todo .todo-text textarea {
     width: 100%;
@@ -31,32 +29,63 @@
     padding: 0.5rem;
     font-size: 1rem;
     font-weight: normal;
+    grid-area: title;
+}
+
+.todo-notes {
+    grid-area: notes;
 }
 
 .date-tag {
-    background-color: #eee;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    border-radius: 8px;
     font-size: 0.8rem;
     margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: fit-content;
 }
 
-.todo #todo-option-container {
+.date-tag:hover {
+    border: 1px solid #ddd;
+}
+
+.date-tag svg {
+    fill: red;
+}
+
+.remove-date-tag {
+    border: none;
+    color: transparent;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: white;
+}
+
+.remove-date-tag:hover {
+    background-color: #ccc;
+    color: black;
+    cursor: pointer;
+}
+
+
+.todo .todo-option-container {
     display: grid; 
     grid-template-areas: "tags options";
     grid-template-columns: 1fr auto;
+    grid-area: options;
 }
 
-#todo-option-container #todo-tags {
+.todo-option-container .todo-tags {
     grid-area: tags
 }
 
-#todo-option-container #option-bttns {
+.todo-option-container .option-bttns {
     grid-area: options;
     display: flex;
 }
 
-#option-bttns button {
+.option-bttns button {
     background-color: transparent;
     border: none;
     cursor: pointer;
