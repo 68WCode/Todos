@@ -41,7 +41,6 @@ export default class HomeView {
 
   bindDisplayTodayView(callback) {
     this.displayTodayView = callback;
-    this.viewElements.get("todayBttn").classList.add();
   }
 
   setCurrentViewDisplayed(view) {

@@ -63,10 +63,10 @@ class App {
       let list = new List();
       this.storage.addList(list);
 
-      this.homeView.newListBttn(list);
-      this.homeView.selectListBttn(list.id);
-
       this.updateLists();
+
+      this.listView.setCurrentList(list);
+      this.homeView.setCurrentViewDisplayed(this.listView);
       this.updateViews();
     };
     this.homeView?.bindOnNewList(handleNewList);
@@ -231,6 +231,12 @@ class App {
       let lists = [...this.lists.values()];
       this.homeView.currentLists = lists;
       this.homeView.render();
+      if (this.homeView.currentViewDisplayed == this.todayView)
+        this.homeView.displayCurrentViewBttn(
+          document.getElementById("today-bttn"),
+        );
+      else if (this.homeView.currentViewDisplayed == this.listView)
+        this.homeView.selectListBttn(this.listView.currentList.id);
     };
     todayView();
     listView();
