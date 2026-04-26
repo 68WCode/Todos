@@ -7,6 +7,7 @@ export default class ListView {
     this.elements = {};
     this.setupViewElements();
     this.addEventListeners();
+    this.selectedTodo = null;
   }
 
   setupViewElements() {

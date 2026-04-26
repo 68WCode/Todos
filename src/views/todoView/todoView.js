@@ -7,6 +7,7 @@ export default class TodoView {
     this.editMode = editMode;
     this.elements = {};
     this.viewElements = new Map();
+    this.selected = false;
     this.setupElements();
     this.addEventListeners();
     this.render();
@@ -24,6 +25,7 @@ export default class TodoView {
 
       const title = document.createElement("h1");
       this.elements.title = title;
+      title.tabIndex = 0;
     }
 
     function optionElements() {
@@ -69,6 +71,8 @@ export default class TodoView {
     const container = document.createElement("div");
     this.elements.container = container;
     container.classList.add("todo");
+    container.id = `${this.todo.id}-todo`;
+    container.tabIndex = 0;
 
     textElements.call(this);
     optionElements.call(this);
@@ -125,6 +129,11 @@ export default class TodoView {
       if (this.editMode && !this.elements.container.contains(e.target)) {
         runTodoUpdate();
         this.toggleEditMode();
+      } else if (
+        !this.elements.container.contains(e.target) &&
+        this.elements.container.classList.contains("selected")
+      ) {
+        this.toggleSelected();
       }
     });
 
@@ -151,6 +160,29 @@ export default class TodoView {
     this.elements.dateInput.addEventListener("blur", (e) => {
       runTodoUpdate();
     });
+
+    this.elements.title.addEventListener("click", () => {
+      this.toggleSelected();
+    });
+
+    this.elements.container.addEventListener("keydown", (e) => {
+      if (e.key == "Delete" || e.key == "Backspace") {
+        if (this.selected) {
+          this.deleteTodo(this.todo.parentList, this.todo.id);
+        }
+      }
+    });
+  }
+
+  toggleSelected() {
+    if (!this.editMode && !this.selected) {
+      this.selected = true;
+      this.elements.container.classList.add("selected");
+      this.elements.container.focus();
+    } else {
+      this.selected = false;
+      this.elements.container.classList.remove("selected");
+    }
   }
 
   render() {
@@ -173,7 +205,14 @@ export default class TodoView {
       this.elements.dateInput,
     );
 
-    this.elements.title.textContent = this.todo.title;
+    if (this.todo.title.trim() == "") {
+      this.elements.title.textContent = "Untitled Todo";
+      this.elements.title.classList.add("placeholder");
+    } else {
+      this.elements.title.textContent = this.todo.title;
+      this.elements.title.classList.remove("placeholder");
+    }
+
     this.elements.notes.placeholder = "Notes";
     this.elements.notes.value = this.todo.notes;
     this.elements.check.checked = this.todo.complete;
@@ -213,12 +252,19 @@ export default class TodoView {
 
   makeEditable() {
     this.elements.container.classList.add("editable");
+
     this.elements.title.contentEditable = "true";
-    this.elements.title.focus();
+    if (this.elements.title.classList.contains("placeholder")) {
+      this.elements.title.textContent = "";
+      this.elements.title.classList.remove("placeholder");
+    }
+
     this.elements.notes.classList.remove("hidden");
     this.elements.optionsContainer.classList.remove("hidden");
     this.elements.optionButtons.classList.remove("hidden");
     this.elements.tags.classList.remove("hidden");
+    if (this.selected) this.toggleSelected();
+    this.elements.title.focus();
   }
 
   toggleEditMode() {
@@ -235,5 +281,9 @@ export default class TodoView {
 
   bindOnUpdateTodo(callback) {
     this.onUpdateTodo = callback;
+  }
+
+  bindOnDelete(callback) {
+    this.deleteTodo = callback;
   }
 }

@@ -24,9 +24,7 @@ export default class HomeView {
     this.viewElements.set("createTodoBttn", createTodoButton);
     this.viewElements.set("todayBttn", todayButton);
 
-    for (let list of this.currentLists) {
-      this.newListBttn(list);
-    }
+    this.updateListBttns();
   }
 
   bindOnListBttnSelected(callback) {
@@ -46,6 +44,10 @@ export default class HomeView {
     this.viewElements.get("todayBttn").classList.add();
   }
 
+  setCurrentViewDisplayed(view) {
+    this.currentViewDisplayed = view;
+  }
+
   addEventListeners() {
     // event listener for the new list button that calls the onNewList callback when clicked
     const newListBttn = this.viewElements.get("newListBttn");
@@ -59,8 +61,8 @@ export default class HomeView {
       let bttn = e.target.closest(".list-bttn");
       if (!bttn) return;
       let listId = bttn.dataset.listId;
-      this.selectListBttn(listId);
       this.onListBttnSelected(listId);
+      this.selectListBttn(listId);
     });
 
     const createButton = this.viewElements.get("createTodoBttn");
@@ -93,10 +95,18 @@ export default class HomeView {
     listBttn.textContent = textContent;
   }
 
+  updateListBttns() {
+    let listBttns = this.viewElements.get("lists");
+    listBttns.innerHTML = "";
+    for (let list of this.currentLists) {
+      this.newListBttn(list);
+    }
+  }
+
   newListBttn(list) {
     // creates a new list button for a given list object and adds it to the lists element
     let listBttn = document.createElement("button");
-    listBttn.textContent = list.title;
+    listBttn.textContent = list.title.trim() || "Untitled List";
     listBttn.id = `${list.id}-list-bttn`;
     listBttn.classList.add("list-bttn");
     listBttn.dataset.listId = list.id;
@@ -104,10 +114,14 @@ export default class HomeView {
     this.viewElements.get("list-bttns").set(list.id, listBttn);
   }
 
-  render(view) {
+  render() {
     // renders the given view in the content area of the home view
     this.viewElements.get("content").innerHTML = "";
-    this.viewElements.get("content").appendChild(view.getContent());
+    this.viewElements
+      .get("content")
+      .appendChild(this.currentViewDisplayed.getContent());
+
+    this.updateListBttns();
   }
 
   displayView(view) {

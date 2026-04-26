@@ -18,6 +18,27 @@ export default class StorageManager {
     localStorage.setItem("lists", lists);
   }
 
+  deleteTodo(listId, todoId) {
+    let lists = this.getLists();
+    let list = null;
+    for (let [id, l] of lists) {
+      if (id == listId) {
+        list = l;
+        break;
+      }
+    }
+    let newTodos = list.todos.filter((todo) => todo.id != todoId);
+    list.todos = newTodos;
+    for (let indx in lists) {
+      if (lists[indx][0] == listId) {
+        lists[indx][1] = list;
+        break;
+      }
+    }
+    lists = JSON.stringify(lists);
+    localStorage.setItem("lists", lists);
+  }
+
   getLists() {
     // returns all lists in localStorage parsed
     let lists = JSON.parse(localStorage.getItem("lists") || "[]");

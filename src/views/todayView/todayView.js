@@ -1,4 +1,4 @@
-import "./today.css";
+import "./todayView.css";
 export class TodayView {
   constructor(todosToday) {
     this.todos = todosToday;
@@ -35,6 +35,7 @@ export class TodayView {
   }
 
   renderTodos() {
+    this.elements.todosSection.innerHTML = "";
     for (let [list, todos] of Object.entries(this.todos)) {
       let listTitle = document.createElement("h3");
       listTitle.textContent = list;

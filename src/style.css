@@ -21,6 +21,10 @@ body {
     padding: 1rem;
 }
 
+#sidebar button {
+    text-align: left;
+}
+
 #sidebar nav {
     display: flex;
     flex-direction: column;

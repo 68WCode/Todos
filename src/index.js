@@ -6,7 +6,7 @@ import ListView from "./views/listView/listView.js";
 import HomeView from "./views/homeView/homeView.js";
 import TodoView from "./views/todoView/todoView.js";
 import Todo from "./model/todo/todo.js";
-import { TodayView } from "./today/today.js";
+import { TodayView } from "./views/todayView/todayView.js";
 
 class App {
   constructor() {
@@ -54,7 +54,8 @@ class App {
     // and renders the new list in the list view
 
     const onDisplayTodoView = () => {
-      this.homeView.render(this.todayView);
+      this.homeView.setCurrentViewDisplayed(this.todayView);
+      this.updateViews();
     };
     this.homeView.bindDisplayTodayView(onDisplayTodoView);
 
@@ -66,9 +67,7 @@ class App {
       this.homeView.selectListBttn(list.id);
 
       this.updateLists();
-      list = this.lists.get(list.id);
-      this.listView?.setCurrentList(list);
-      this.listView?.render(true);
+      this.updateViews();
     };
     this.homeView?.bindOnNewList(handleNewList);
 
@@ -78,8 +77,8 @@ class App {
 
       if (list) {
         this.listView.setCurrentList(list);
-        this.listView.render(true);
-        this.homeView.render(this.listView);
+        this.homeView.setCurrentViewDisplayed(this.listView);
+        this.updateViews();
       }
     };
     this.homeView?.bindOnListBttnSelected(onListBttnSelected);
@@ -89,17 +88,14 @@ class App {
     // and updates the text content of the corresponding list button in the home view
     const onSetTitle = (listId, newTitle) => {
       this.storage.updateList(listId, { title: newTitle });
-      this.homeView.updateListBttn(listId, newTitle);
       this.updateLists();
-      let currentList = this.lists.get(this.listView.currentList.id);
-      this.listView.setCurrentList(currentList);
+      this.updateViews();
     };
 
     const onListNotesUpdate = (listId, newNotes) => {
       this.storage.updateList(listId, { notes: newNotes });
       this.updateLists();
-      let currentList = this.lists.get(this.listView.currentList.id);
-      this.listView.setCurrentList(currentList);
+      this.updateViews();
     };
     this.listView.bindOnSetTitle(onSetTitle);
     this.listView.bindOnNotesUpdate(onListNotesUpdate);
@@ -126,13 +122,15 @@ class App {
       this.updateLists();
 
       this.listView.addTodoView(todo.id, todoView);
-      this.listView.render();
+      this.updateViews();
     };
     this.homeView?.bindOnCreateTodo(onCreateTodo);
 
     const deleteList = (listId) => {
       this.storage.deleteList(listId);
       this.updateLists();
+      this.homeView.setCurrentViewDisplayed(this.todayView);
+      this.updateViews();
     };
     this.listView.bindOnDeleteList(deleteList);
   }
@@ -146,10 +144,18 @@ class App {
 
       todoView.todo = todo;
       todoView.render();
+      this.updateViews();
+    };
+
+    const onDeleteTodo = (listId, todoId) => {
+      this.storage.deleteTodo(listId, todoId);
+      this.updateLists();
+      this.updateViews();
     };
 
     let todoView = new TodoView(todo, editable);
     todoView.bindOnUpdateTodo(onTodoUpdate);
+    todoView.bindOnDelete(onDeleteTodo);
 
     return todoView;
   }
@@ -183,11 +189,14 @@ class App {
       let todos = list.todos;
       let todosToday = [];
       for (let todo of todos) {
-        let [year, month, day] = todo.completionDate.split("-");
-        let completionDate = new Date(year, String(month - 1), day);
-        if (completionDate.getTime() == today.getTime()) todosToday.push(todo);
+        if (todo.completionDate) {
+          let [year, month, day] = todo.completionDate.split("-");
+          let completionDate = new Date(year, String(month - 1), day);
+          if (completionDate.getTime() == today.getTime())
+            todosToday.push(todo);
+        }
       }
-      if (todosToday) {
+      if (todosToday.length > 0) {
         dueToday[list.title] = todosToday;
       }
     }
@@ -197,7 +206,35 @@ class App {
   render() {
     this.listView?.render();
 
-    this.homeView?.render(this.todayView);
+    this.homeView.setCurrentViewDisplayed(this.todayView);
+    this.homeView.displayCurrentViewBttn(document.getElementById("today-bttn"));
+    this.homeView.render();
+  }
+
+  updateViews() {
+    const todayView = () => {
+      let data = this.getTodosToday();
+      this.todayView.todos = data;
+      this.todayView.render();
+    };
+
+    const listView = () => {
+      let currentList = this.listView.getCurrentList();
+      if (currentList) {
+        currentList = this.lists.get(currentList.id);
+        this.listView.setCurrentList(currentList);
+        this.listView.render(true);
+      }
+    };
+
+    const homeView = () => {
+      let lists = [...this.lists.values()];
+      this.homeView.currentLists = lists;
+      this.homeView.render();
+    };
+    todayView();
+    listView();
+    homeView();
   }
 }
 

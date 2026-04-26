@@ -32,6 +32,10 @@
     grid-area: title;
 }
 
+.todo h1.placeholder {
+    color: #ccc
+}
+
 .todo-notes {
     grid-area: notes;
 }
@@ -93,4 +97,8 @@
 
 #completion-date-bttn svg {
     fill: #ddd;
+}
+
+.todo.selected {
+    background-color: rgb(209,223,252);
 }
