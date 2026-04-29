@@ -94,3 +94,21 @@ textarea {
 :read-write {
     outline: none;
 }
+
+#new-list-bttn-label, #create-todo-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+}
+
+#new-list-bttn-label svg, #create-todo-label svg {
+    fill: black;
+}
+
+#new-list-bttn, #create-todo-bttn {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}

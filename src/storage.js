@@ -1,6 +1,7 @@
 export default class StorageManager {
   constructor() {
     this.lists = localStorage.getItem("lists") || [];
+    this.trash = localStorage.getItem("trash") || [];
   }
 
   addList(list) {
@@ -27,6 +28,13 @@ export default class StorageManager {
         break;
       }
     }
+    let todo = list.todos.find((todo) => todo.id == todoId);
+    if (todo) {
+      let trash = JSON.parse(localStorage.getItem("trash") || "[]");
+      trash.push(todo);
+      localStorage.setItem("trash", JSON.stringify(trash));
+    }
+
     let newTodos = list.todos.filter((todo) => todo.id != todoId);
     list.todos = newTodos;
     for (let indx in lists) {
@@ -136,5 +144,15 @@ export default class StorageManager {
       lists.set(listId, list);
       localStorage.setItem("lists", JSON.stringify([...lists]));
     }
+  }
+
+  getTrash() {
+    // returns the trash array from localStorage parsed
+    return JSON.parse(localStorage.getItem("trash") || "[]");
+  }
+
+  emptyTrash() {
+    // empties the trash in localStorage
+    localStorage.setItem("trash", JSON.stringify([]));
   }
 }

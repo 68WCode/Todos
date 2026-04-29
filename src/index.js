@@ -7,6 +7,8 @@ import HomeView from "./views/homeView/homeView.js";
 import TodoView from "./views/todoView/todoView.js";
 import Todo from "./model/todo/todo.js";
 import { TodayView } from "./views/todayView/todayView.js";
+import UpcomingView from "./views/upcomingView/upcomingView.js";
+import TrashView from "./views/trashView/trashView.js";
 
 class App {
   constructor() {
@@ -14,6 +16,7 @@ class App {
     this.storage = new StorageManager();
     this.root = document.querySelector("body");
     this.lists = this.storage.getListMap();
+    this.trash = this.storage.getTrash();
     this.updateLists();
     console.log(this.lists);
     this.lists.forEach((list, listId) => {
@@ -53,11 +56,23 @@ class App {
     // sets the current list in the list view to the new list
     // and renders the new list in the list view
 
-    const onDisplayTodoView = () => {
+    const onDisplayTodayView = () => {
       this.homeView.setCurrentViewDisplayed(this.todayView);
       this.updateViews();
     };
-    this.homeView.bindDisplayTodayView(onDisplayTodoView);
+    this.homeView.bindDisplayTodayView(onDisplayTodayView);
+
+    const onDisplayUpcomingView = () => {
+      this.homeView.setCurrentViewDisplayed(this.upcomingView);
+      this.updateViews();
+    };
+    this.homeView.bindDisplayUpcomingView(onDisplayUpcomingView);
+
+    const onDisplayTrashView = () => {
+      this.homeView.setCurrentViewDisplayed(this.trashView);
+      this.updateViews();
+    };
+    this.homeView.bindDisplayTrashView(onDisplayTrashView);
 
     const handleNewList = () => {
       let list = new List();
@@ -168,11 +183,23 @@ class App {
     };
 
     let lists = [...this.lists.values()];
+
     this.homeView = new HomeView(this.root, lists);
+
     this.listView = new ListView();
+
     this.todayView = new TodayView(this.getTodosToday());
     this.todayView.bindRequestTodoView(onRequestTodoView);
-    this.todayView.render();
+
+    this.upcomingView = new UpcomingView(this.getUpcomingTodos());
+    this.upcomingView.bindRequestTodoView(onRequestTodoView);
+
+    this.trashView = new TrashView(this.trash);
+    this.trashView.bindOnRequestTodoView(onRequestTodoView);
+    this.trashView.bindEmptyTrash(() => {
+      this.storage.emptyTrash();
+      this.updateViews();
+    });
   }
 
   getTodosToday() {
@@ -204,18 +231,16 @@ class App {
   }
 
   render() {
-    this.listView?.render();
-
     this.homeView.setCurrentViewDisplayed(this.todayView);
-    this.homeView.displayCurrentViewBttn(document.getElementById("today-bttn"));
-    this.homeView.render();
+    this.updateViews();
   }
 
   updateViews() {
     const todayView = () => {
       let data = this.getTodosToday();
       this.todayView.todos = data;
-      this.todayView.render();
+      if (this.homeView.currentViewDisplayed == this.todayView)
+        this.todayView.render();
     };
 
     const listView = () => {
@@ -223,7 +248,8 @@ class App {
       if (currentList) {
         currentList = this.lists.get(currentList.id);
         this.listView.setCurrentList(currentList);
-        this.listView.render(true);
+        if (this.homeView.currentViewDisplayed == this.listView)
+          this.listView.render(true);
       }
     };
 
@@ -231,16 +257,54 @@ class App {
       let lists = [...this.lists.values()];
       this.homeView.currentLists = lists;
       this.homeView.render();
-      if (this.homeView.currentViewDisplayed == this.todayView)
+      if (this.homeView.currentViewDisplayed == this.todayView) {
         this.homeView.displayCurrentViewBttn(
           document.getElementById("today-bttn"),
         );
-      else if (this.homeView.currentViewDisplayed == this.listView)
+        this.homeView.disableCreateTodoButton();
+      } else if (this.homeView.currentViewDisplayed == this.listView) {
         this.homeView.selectListBttn(this.listView.currentList.id);
+        this.homeView.enableCreateTodoButton();
+      } else if (this.homeView.currentViewDisplayed == this.upcomingView) {
+        this.homeView.displayCurrentViewBttn(
+          document.getElementById("upcoming-bttn"),
+        );
+        this.homeView.disableCreateTodoButton();
+      } else if (this.homeView.currentViewDisplayed == this.trashView) {
+        this.homeView.displayCurrentViewBttn(
+          document.getElementById("trash-bttn"),
+        );
+        this.homeView.disableCreateTodoButton();
+      }
     };
+
+    const upcomingView = () => {
+      let upcomingTodos = this.getUpcomingTodos();
+      this.upcomingView.setTodos(upcomingTodos);
+      this.upcomingView.render();
+    };
+
+    const trashView = () => {
+      let trash = this.storage.getTrash();
+      this.trashView.trash = trash;
+      this.trashView.render();
+    };
+
     todayView();
     listView();
+    upcomingView();
     homeView();
+    trashView();
+  }
+
+  getUpcomingTodos() {
+    const todos = [];
+    for (let [listId, list] of this.lists) {
+      for (let todo of list.todos) {
+        if (todo.completionDate) todos.push(todo);
+      }
+    }
+    return todos;
   }
 }
 

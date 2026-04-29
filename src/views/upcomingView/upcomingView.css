@@ -1,0 +1,30 @@
+#upcoming-container {
+    width: 100%;
+}
+
+.date-container {
+    min-height: 100px;
+}
+
+.date-label {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    width: 100%;
+}
+
+
+.date-label p {
+  position: relative;
+  padding-top: 8px; /* space for the line */
+  flex: 1;
+}
+.date-label p::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: black;
+}

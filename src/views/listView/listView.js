@@ -179,6 +179,15 @@ export default class ListView {
     let todosToRender = this.elements.todosToRender;
 
     let todos = this.currentList?.todos;
+    let totalTodos = todos.length;
+    let completedTodos = todos.filter((todo) => todo.complete).length;
+
+    let percent = totalTodos === 0 ? 0 : (completedTodos / totalTodos) * 100;
+
+    this.elements.listProgress.style.background = `conic-gradient(
+  rgb(49, 95, 189) ${percent}%,
+  white 0
+)`;
     if (listChange) {
       todosViews.clear();
       todosContainer.innerHTML = "";

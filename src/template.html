@@ -11,23 +11,28 @@
     <header>
         <div id="sidebar">
             <nav>
-                <button id="today-bttn">Today</button>
-                <button>Upcoming</button>
-                <button>Anytime</button>
-                <button>Logbook</button>
-                <button>Trash</button>
+                <button id="today-bttn">⭐️ Today</button>
+                <button id="upcoming-bttn">🗓️ Upcoming</button>
+                <!-- <button>📚 Logbook</button> -->
+                <button id="trash-bttn">🗑️ Trash</button>
                 <div id="lists"></div>
             </nav>
         </div>
     </header>
     <div id="content"></div>
     <div id="options">
-        <button id="new-list-bttn">New List</button>
+        
+        <label id="new-list-bttn-label"
+        for="new-list-bttn">
+            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+            <button id="new-list-bttn">New List</button>
+        </label>
         <div id="todo-options">
             <div id="todo-options-buttons">
-                <button id="create-todo-bttn">create</button>
-                <button id="calendar-bttn">calendar</button>
-
+                <label id="create-todo-label" for="create-todo-bttn">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M440-440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z"/></svg>
+                    <button id="create-todo-bttn">Add Todo</button>
+                </label>
             </div>
         </div>
     </div>

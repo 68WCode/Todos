@@ -1,7 +1,6 @@
 export default class HomeView {
   constructor(container, currentLists = []) {
     this.viewElements = new Map();
-    this.container = container;
     this.currentLists = currentLists;
     this.setupViewElements();
     this.addEventListeners();
@@ -15,6 +14,7 @@ export default class HomeView {
     const newListBttn = document.getElementById("new-list-bttn");
     const createTodoButton = document.getElementById("create-todo-bttn");
     const todayButton = document.getElementById("today-bttn");
+    const upcomingBttn = document.getElementById("upcoming-bttn");
 
     this.viewElements.set("content", content);
     this.viewElements.set("sidebar", sidebar);
@@ -23,6 +23,7 @@ export default class HomeView {
     this.viewElements.set("newListBttn", newListBttn);
     this.viewElements.set("createTodoBttn", createTodoButton);
     this.viewElements.set("todayBttn", todayButton);
+    this.viewElements.set("upcomingBttn", upcomingBttn);
 
     this.updateListBttns();
   }
@@ -43,8 +44,24 @@ export default class HomeView {
     this.displayTodayView = callback;
   }
 
+  bindDisplayUpcomingView(callback) {
+    this.displayUpcomingView = callback;
+  }
+
+  bindDisplayTrashView(callback) {
+    this.displayTrashView = callback;
+  }
+
   setCurrentViewDisplayed(view) {
     this.currentViewDisplayed = view;
+  }
+
+  disableCreateTodoButton() {
+    this.viewElements.get("createTodoBttn").disabled = true;
+  }
+
+  enableCreateTodoButton() {
+    this.viewElements.get("createTodoBttn").disabled = false;
   }
 
   addEventListeners() {
@@ -71,6 +88,17 @@ export default class HomeView {
     this.viewElements.get("todayBttn").addEventListener("click", () => {
       this.displayTodayView();
       this.displayCurrentViewBttn(this.viewElements.get("todayBttn"));
+    });
+
+    this.viewElements.get("upcomingBttn").addEventListener("click", () => {
+      this.displayUpcomingView();
+      this.displayCurrentViewBttn(this.viewElements.get("upcomingBttn"));
+    });
+
+    const trashBttn = document.getElementById("trash-bttn");
+    trashBttn.addEventListener("click", () => {
+      this.displayTrashView();
+      this.displayCurrentViewBttn(trashBttn);
     });
   }
 
